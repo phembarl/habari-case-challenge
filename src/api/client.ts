@@ -87,4 +87,19 @@ export class ApiClient {
   static async delete<T>(endpoint: string, includeAuth: boolean = true): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' }, includeAuth);
   }
+
+  static async patch<T>(
+    endpoint: string,
+    data?: any,
+    includeAuth: boolean = true
+  ): Promise<T> {
+    return this.request<T>(
+      endpoint,
+      {
+        method: 'PATCH',
+        body: data ? JSON.stringify(data) : undefined,
+      },
+      includeAuth
+    );
+  }
 }
