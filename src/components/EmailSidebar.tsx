@@ -9,21 +9,40 @@ import {
   MdDrafts,
   MdDelete,
 } from 'react-icons/md';
+import { type EmailFilterState } from './EmailList';
+import { useEmailCounts } from '../queriesandmutations/email';
 
 interface EmailSidebarProps {
   className?: string;
+  activeFolder?: string;
+  onFolderChange?: (folder: string, filters: EmailFilterState) => void;
+  onLabelChange?: (label: string) => void;
 }
 
-const EmailSidebar: React.FC<EmailSidebarProps> = ({ className = '' }) => {
+const EmailSidebar: React.FC<EmailSidebarProps> = ({
+  className = '',
+  activeFolder = 'Inbox',
+  onFolderChange,
+  onLabelChange,
+}) => {
+  const { data: emailCounts } = useEmailCounts();
 
   const folders = [
-    { name: 'Inbox', icon: MdInbox, count: 24, active: true },
-    { name: 'Starred', icon: MdStar, count: 0, active: false },
-    { name: 'Sent', icon: MdSend, count: 0, active: false },
-    { name: 'Important', icon: MdReportProblem, count: 0, active: false },
-    { name: 'Drafts', icon: MdDrafts, count: 30, active: false },
-    { name: 'Trash', icon: MdDelete, count: 0, active: false },
+    { name: 'Inbox', icon: MdInbox, count: emailCounts?.inbox ?? 0, filters: { folder: 'inbox' } },
+    { name: 'Starred', icon: MdStar, count: emailCounts?.starred ?? 0, filters: { isStarred: true } },
+    { name: 'Sent', icon: MdSend, count: emailCounts?.sent ?? 0, filters: { folder: 'sent' } },
+    { name: 'Important', icon: MdReportProblem, count: emailCounts?.important ?? 0, filters: { isImportant: true } },
+    { name: 'Drafts', icon: MdDrafts, count: emailCounts?.drafts ?? 0, filters: { folder: 'drafts' } },
+    { name: 'Trash', icon: MdDelete, count: emailCounts?.trash ?? 0, filters: { folder: 'trash' } },
   ];
+
+  const handleFolderClick = (folderName: string, filters: EmailFilterState) => {
+    onFolderChange?.(folderName, filters);
+  };
+
+  const handleLabelClick = (labelName: string) => {
+    onLabelChange?.(labelName);
+  };
 
   const labels = [
     { name: 'Work' },
@@ -64,11 +83,11 @@ const EmailSidebar: React.FC<EmailSidebarProps> = ({ className = '' }) => {
         <div className="p-3">
           <nav className="space-y-1">
             {folders.map((folder, index) => (
-              <a
+              <button
                 key={index}
-                href="#"
-                className={`flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-colors ${
-                  folder.active
+                onClick={() => handleFolderClick(folder.name, folder.filters)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-colors ${
+                  activeFolder === folder.name
                     ? 'bg-gray-100 text-gray-900 font-medium'
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -82,7 +101,7 @@ const EmailSidebar: React.FC<EmailSidebarProps> = ({ className = '' }) => {
                     {folder.count}
                   </span>
                 )}
-              </a>
+              </button>
             ))}
           </nav>
         </div>
@@ -94,14 +113,14 @@ const EmailSidebar: React.FC<EmailSidebarProps> = ({ className = '' }) => {
           </h4>
           <nav className="space-y-1">
             {labels.map((label, index) => (
-              <a
+              <button
                 key={index}
-                href="#"
-                className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => handleLabelClick(label.name)}
+                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
               >
                 <GoTag className="w-4 h-4" />
                 <span>{label.name}</span>
-              </a>
+              </button>
             ))}
           </nav>
         </div>

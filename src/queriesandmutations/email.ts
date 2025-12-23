@@ -19,6 +19,7 @@ export const useMarkAsRead = () => {
     onSuccess: () => {
       // Invalidate emails query to refetch updated data
       queryClient.invalidateQueries({ queryKey: ['emails'] });
+      queryClient.invalidateQueries({ queryKey: ['emailCounts'] });
     },
     onError: (error) => {
       console.error('Failed to mark email as read:', error);
@@ -33,6 +34,7 @@ export const useMarkAsUnread = () => {
     mutationFn: emailApi.markAsUnread,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
+      queryClient.invalidateQueries({ queryKey: ['emailCounts'] });
     },
     onError: (error) => {
       console.error('Failed to mark email as unread:', error);
@@ -47,6 +49,7 @@ export const useToggleStar = () => {
     mutationFn: emailApi.toggleStar,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
+      queryClient.invalidateQueries({ queryKey: ['emailCounts'] });
     },
     onError: (error) => {
       console.error('Failed to toggle star:', error);
@@ -61,6 +64,7 @@ export const useToggleImportant = () => {
     mutationFn: emailApi.toggleImportant,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
+      queryClient.invalidateQueries({ queryKey: ['emailCounts'] });
     },
     onError: (error) => {
       console.error('Failed to toggle important:', error);
@@ -75,9 +79,20 @@ export const useDeleteEmail = () => {
     mutationFn: emailApi.deleteEmail,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
+      queryClient.invalidateQueries({ queryKey: ['emailCounts'] });
     },
     onError: (error) => {
       console.error('Failed to delete email:', error);
     },
+  });
+};
+
+export const useEmailCounts = () => {
+  return useQuery({
+    queryKey: ['emailCounts'],
+    queryFn: emailApi.getEmailCounts,
+    staleTime: 60 * 1000, // 1 minute
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+    retry: 2,
   });
 };

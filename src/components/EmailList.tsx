@@ -8,11 +8,26 @@ import {
 } from 'react-icons/md';
 import { useEmails, useToggleStar } from '../queriesandmutations/email';
 
-interface EmailListProps {
-  className?: string;
+export interface EmailFilterState {
+  isRead?: boolean;
+  isStarred?: boolean;
+  isImportant?: boolean;
+  labels?: string[];
+  hasAttachments?: boolean;
+  folder?: string;
 }
 
-const EmailList: React.FC<EmailListProps> = ({ className = '' }) => {
+interface EmailListProps {
+  className?: string;
+  filters?: EmailFilterState;
+  title?: string;
+}
+
+const EmailList: React.FC<EmailListProps> = ({
+  className = '',
+  filters = {},
+  title = 'Inbox',
+}) => {
   const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,6 +44,7 @@ const EmailList: React.FC<EmailListProps> = ({ className = '' }) => {
     page: currentPage,
     limit: 15,
     search: debouncedSearchQuery || undefined,
+    ...filters,
   });
 
   const toggleStarMutation = useToggleStar();
@@ -76,6 +92,7 @@ const EmailList: React.FC<EmailListProps> = ({ className = '' }) => {
     }
   };
 
+
   const handleSelectAll = () => {
     if (selectedEmails.length === emails.length) {
       setSelectedEmails([]);
@@ -113,7 +130,7 @@ const EmailList: React.FC<EmailListProps> = ({ className = '' }) => {
         {/* Top row */}
         <div className="flex items-center justify-between mb-4 lg:mb-0">
           <div className="flex items-center space-x-4">
-            <h2 className="text-lg font-semibold text-gray-900">Inbox</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
             <div className="flex items-center space-x-3">
               <input
                 type="checkbox"
@@ -191,6 +208,7 @@ const EmailList: React.FC<EmailListProps> = ({ className = '' }) => {
           </div>
         </div>
       </div>
+
 
       {/* Email List */}
       <div className="divide-y divide-gray-100">

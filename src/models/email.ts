@@ -45,4 +45,5 @@ export interface EmailFilters {
   isRead?: boolean;
   isStarred?: boolean;
   isImportant?: boolean;
+  hasAttachments?: boolean;
 }
